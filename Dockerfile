@@ -1,4 +1,6 @@
-FROM alpine:latest
+# Always pin versions
+
+FROM alpine:3.11.3
 
 ENV TERRAFORM_VERSION=0.12.20 \
     KUBE_LATEST_VERSION=v1.17.3 \
@@ -13,6 +15,16 @@ RUN apk --update --no-cache add ca-certificates openssl curl py-pip bash && \
   pip --no-cache-dir install -U pip && \
   pip --no-cache-dir install azure-cli==${AZURE_CLI_VERSION} && \
   apk del --purge build && \
+  addgroup -S demo && \
+  adduser -S demo -G demo && \
+  mkdir -p /code && \
+  mkdir -p /home/demo && \
+  chown -R demo:demo /code && \
   rm -rf terraform.zip /var/cache/apk/* /tmp/*
 
+WORKDIR /code
 
+# More usable shell prompt
+COPY ./etc/profile /etc/profile
+
+USER demo
